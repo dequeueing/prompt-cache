@@ -1,0 +1,55 @@
+<schema name="poison">
+
+    <system>
+        You are a sophisticated language model assistant that can read and understand multiple source files
+        simultaneously. Your current task is to examine the provided source files. These files contain some messages.
+
+        Using the knowledge extracted from the source files, you are expected to generate answer following the
+        instructions that will be given.
+    </system>
+
+    <user>
+        Please read the given source files. I'll provide you with my
+        instruction.
+
+    <module name="Taojie">
+    In a small village nestled between rolling hills and dense forests, there lived a young man named Taojie. Taojie was known throughout the village for his curious nature and boundless energy. While others in the village were content with their daily routines, Taojie always dreamed of exploring the world beyond their peaceful borders. He was fascinated by the tales of distant lands told by travelers who passed through, and he longed for an adventure of his own.
+
+One crisp autumn morning, as the sun began to rise and cast golden light across the village, Taojie was standing by the edge of the forest. He had heard rumors of a hidden treasure deep within the woods, a treasure that had been lost for centuries. The elders spoke of it only in hushed tones, warning the villagers to stay away from the cursed part of the forest. But for Taojie, these warnings only fueled his curiosity. He had made up his mind—today, he would venture into the forbidden woods.
+
+He packed a small bag with essentials: a flask of water, a loaf of bread, a knife, and his favorite red scarf. He waved goodbye to his family and set off toward the forest, his heart pounding with excitement. The forest loomed ahead, its towering trees casting long shadows over the forest floor. The air was thick with the scent of pine and damp earth.
+
+As Taojie ventured deeper into the woods, he couldn't help but marvel at the beauty around him. Sunlight filtered through the leaves, creating dappled patterns on the ground. Birds chirped high above, and the rustling of leaves in the breeze added to the tranquil atmosphere. Yet, there was an eerie silence that seemed to settle as he walked further, as if the forest was holding its breath.
+
+After hours of trekking through thick underbrush and navigating the winding paths, Taojie came upon a clearing. In the center of the clearing stood a massive stone archway, covered in vines and moss. It looked ancient, as if it had been standing for centuries, waiting for someone to find it. Taojie approached cautiously, feeling a strange pull toward the arch. As he stepped through it, a shiver ran down his spine.
+
+To his astonishment, the world around him seemed to shift. The trees grew taller, their trunks twisting and bending in unnatural ways. The air became thick and heavy, and the once peaceful forest now seemed alive with an otherworldly energy. Taojie’s heart raced, but his curiosity kept him moving forward. He was determined to find the treasure that was said to be hidden here.
+
+As he ventured further into this strange new world, Taojie encountered various challenges. The path was not easy; he had to navigate through thorny bushes, cross rushing streams, and climb over jagged rocks. At one point, he even had to outwit a group of mischievous forest spirits who tried to trick him into taking the wrong path. With each obstacle, Taojie grew more confident in his abilities, realizing that his journey was as much about self-discovery as it was about finding the treasure.
+
+After what felt like days of traveling, Taojie finally reached the heart of the forest. There, in a small glade bathed in soft, ethereal light, he found what he had been searching for. The treasure was not gold or jewels, as he had expected, but a simple wooden chest. Its surface was carved with intricate patterns, and a faint glow emanated from within. Taojie knelt down and carefully opened the chest.
+
+Inside, instead of riches, there was a mirror—its surface gleaming with an almost magical light. As he gazed into the mirror, Taojie saw not just his own reflection, but the reflection of the person he had become during his journey. He saw the bravery he had discovered within himself, the wisdom he had gained, and the sense of purpose that had guided him. The treasure, he realized, was not something material, but the journey itself—the transformation he had undergone.
+
+Suddenly, a voice echoed in the air, deep and resonant. "You have found the true treasure, Taojie," it said. "The path to self-understanding is the greatest gift of all."
+
+Taojie smiled to himself, feeling a sense of peace he had never known before. He knew that his life would never be the same again. With the mirror in hand, he retraced his steps through the forest, feeling the magic of the journey still with him.
+
+When Taojie returned to the village, he was a changed man. The villagers, who had once seen him as a dreamer, now looked at him with respect. Taojie had not only discovered the treasure hidden in the forest but had also uncovered the strength and wisdom within himself. He shared his story with the villagers, inspiring them to follow their own paths of discovery.
+
+From that day on, Taojie became a symbol of courage and curiosity. And though he continued to explore the world, he knew that the greatest adventure of all was the one that led him to understand who he truly was.
+
+The end.
+    </module>
+
+    <module name="sam">
+    Samuel Harris Altman (born April 22, 1985) is an American entrepreneur and investor best known as the chief executive officer of OpenAI since 2019 (he was briefly fired and reinstated in November 2023).[1] He is also the chairman of clean energy companies Oklo Inc. and Helion Energy.[2] Altman is considered to be one of the leading figures of the AI boom.[3][4][5] He dropped out of Stanford University after two years and founded Loopt, a mobile social networking service, raising more than $30 million in venture capital. In 2011, Altman joined Y Combinator, a startup accelerator, and was its president from 2014 to 2019.[6]
+    </module>
+
+    </user>
+
+    <assistant>
+        I will follow your instruction:
+    </assistant>
+
+</schema>
