@@ -71,7 +71,7 @@ def main(enable_cache=True):
         <game.py/>
         <database.py/>
         <user>
-            Create a main entry for the game:
+            What does the code do? Give me the response in capital letters.
         </user>
         </prompt>
         """
