@@ -397,6 +397,7 @@ class Module(Element):
             return [e for c in self.children for e in c.position_ids()]
 
     def get_scaffold(self, *paths: Path) -> Scaffold:
+        # print(f"debug: paths: {paths}")
         return Scaffold(self, *paths)
 
     def select(self, path: Union[str, Path]) -> Optional[Module]:
@@ -443,10 +444,14 @@ class Scaffold(Element):
     def __init__(self, module: Module, *paths: Path):
         super().__init__(module.offset, module.name)
         self.module = module
+        
+        # print("wow, the path: ", paths)
+        # print(f"wow, the module: {module}")
 
         self._process(*paths)
 
     def _process(self, *paths: Path):
+        # print(f"debug: paths: {paths}")
 
         self.children = []
 
@@ -479,6 +484,9 @@ class Scaffold(Element):
 
             else:
                 self.children.append(e)
+                
+        # print("\ndebug")
+        # print(f"self.children: {self.children}")
 
     def __len__(self):
         return self.module.length

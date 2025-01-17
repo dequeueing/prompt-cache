@@ -8,7 +8,7 @@ import torch
 
 from .model import LanguageModel
 from .prompt import Prompt, ModuleRef
-from .schema import Parameter, TokenSequence, UnionModule, Schema, Path, Module
+from .schema import Parameter, Scaffold, TokenSequence, UnionModule, Schema, Path, Module
 
 # list - each decoding layer in transformer
 KVCache = List[Tuple[torch.Tensor, torch.Tensor]]
@@ -49,6 +49,7 @@ def pad_batch(batch_list: List[List[int]], pad_id: int) -> Tuple[List[List[int]]
 
 class TokenSequenceCache:
     token_sequence: TokenSequence
+    # TODO: (Taojie) difference?    
     host_cache: KVCache
     device_cache: Optional[KVCache] = None
 
@@ -121,21 +122,40 @@ class PromptCache:
         modules_ordered = sorted(modules, key=lambda e: e.usage_counter, reverse=True)
 
         retained = []
+        
+        # print("\ndebug")
+        # print(f"self.staged: {self.staged}")  # []
 
         for (m, m_prev) in zip(modules_ordered, self.staged):
             if m.token_sequence == m_prev.token_sequence:
                 retained.append(m)
             else:
                 break
+        
+        # print("\n debug")
+        # print(f"len of retained: {len(retained)}")  # 0
 
         offset = sum(map(len, retained))
         updates = modules_ordered[len(retained):]
+        
+        # print("\n debug")
+        # # print(f"len of updates: {len(updates)}")  # 11
+        # for m in updates:
+        #     print(f"m: {m.token_sequence}")   # text sequence
+        #     print(f"m: {m.token_sequence.token_ids()}")  # token ids
+        #     print(f"m: {m.token_sequence.position_ids()}")  # position ids, sequentials
+        #     print(f"m: {m.token_sequence.offset}")   # start form 0
+        #     print(f"m: {len(m)}")
+        #     print(f"m: {m.usage_counter}")
+        #     # print(f"m: {m.cache}")   # has content! 
+        #     print()
 
         # update the cache
         for m in updates:
             st = offset
             ed = st + len(m)
 
+            # print(f"debug, len of device cache {len(self.device_cache)}")  # 32
             for i in range(len(self.device_cache)):
                 k_cache_tgt, v_cache_tgt = self.device_cache[i]
                 k_cache_src, v_cache_src = m.cache[i]
@@ -210,18 +230,30 @@ class SchemaCache:
                             paths_l1.append(Path(path + [u.name, n.name]).next)
 
         # For each path, update every leaf nodes (token sequence) under that path
-
-        batch_path = []
+        
+        # print("\ndebug")
+        print(f"len of paths_l1: {len(paths_l1)}")  # 1
+        # for path in paths_l1:  # nothing here!s
+        #     print("\ndebug")
+        #     print(path)
+ 
+        batch_path: List[Path, Scaffold] = []
         batch_token_ids = []
         batch_position_ids = []
         for k in range(len(paths_l1)):
 
             path = paths_l1[k]
+            
+            # print(f"debug: path = {path}")
 
             scaffold = self.schema.get_scaffold(path)
 
             token_ids = scaffold.token_ids()
             position_ids = scaffold.position_ids()
+            
+            # print("\ndebug")
+            # print(f"token_ids: {token_ids}") 
+            # print(f"position_ids: {position_ids}",  end='\n\n')
 
             # add to batch
             batch_path.append((path, scaffold))
@@ -236,10 +268,19 @@ class SchemaCache:
 
                 # replace modeling_llama.py line 334
                 #         cos, sin = self.rotary_emb(value_states, seq_len=torch.max(position_ids) + 1)
+            
+
+                # Taojie: (important) get modules from the schema
 
                 batch_token_ids_padded, attn_mask = pad_batch(batch_token_ids, self.lm.eos_token_id)
                 batch_position_ids_padded, _ = pad_batch(batch_position_ids, 0)
-
+                
+                print("\ndebug")
+                print(f"input_ids: {batch_token_ids_padded}")  # all the modules!!
+                print(f"position_ids: {batch_position_ids_padded}")  
+                print(f"attn_mask: {attn_mask}")
+                print(f"attn_mask: len: {len(attn_mask[0])}")    # 4334, number of module tokens!
+                
                 d_output = self.lm(
                     input_ids=torch.tensor(batch_token_ids_padded, device=self.lm.device, dtype=torch.long),
                     position_ids=torch.tensor(batch_position_ids_padded, device=self.lm.device, dtype=torch.long),
@@ -252,9 +293,11 @@ class SchemaCache:
 
                 kv_cache = d_output.past_key_values
 
+                # print("\ndebug")
                 # print('num_layers', len(kv_cache))
-                # print('k_shape', kv_cache[0][0].shape)
+                # print('k_shape', kv_cache[0][0].shape) torch.Size([1, 32, 4334, 128])
                 # print('v_shape', kv_cache[0][1].shape)
+                
 
                 # iterate through all leaf nodes in target scaffold
 
@@ -352,7 +395,7 @@ class CacheEngine:
 
     def add_schema(self, schema: Union[str, Schema],
                    batch_size: int = 1,
-                   max_tokens: Optional[int] = None,
+                   max_tokens: Optional[int] = None,  # TODO: (Taojie) what is max_tokens?
                    no_cache: bool = False):
 
         if type(schema) == str:
@@ -360,6 +403,13 @@ class CacheEngine:
 
         if schema.name in self.schemas:
             raise ValueError(f'There is already a schema named {schema.name} in the cache')
+        
+        # print("\ndebug")
+        # print(f"type of lm: {type(self.lm)}")  # promptcache.model.CodeLlama
+        # print(f"batch size: {batch_size}")  # 1
+        # print(f"max tokens: {max_tokens}")  # 800
+        # print(f"target_device: {self.target_device}")  # cuda:0
+        # print(f"no_cache: {no_cache}")  # False -> use cache
 
         self.schemas[schema.name] = SchemaCache(schema, self.lm, batch_size, target_device=self.target_device,
                                                 no_cache=no_cache)
@@ -392,6 +442,12 @@ class CacheEngine:
         end = torch.cuda.Event(enable_timing=True)
 
         start.record()
+        
+        # print("\ndebug:")
+        # print(f"prompt: {prompt.text}")  # Create a main entry for the game [/INST]
+        # print(f"schema: {prompt.schema}")  # code-generation-game
+        # print(f"no_cache: {no_cache}")  # false
+        # print(f"return_full_position_ids: {return_full_position_ids}") # false
 
         # assert that root tag matches engine signature
         if prompt.schema not in self.schemas:
@@ -399,21 +455,33 @@ class CacheEngine:
 
         cached = self.schemas[prompt.schema]
         schema = cached.schema
+        
+        # print("\ndebug:")
+        # print(f"cached: {cached}")  # <promptcache.cache_engine.SchemaCache> object 
+        # print(f"schema: {schema}")  # all the modules together in the schemas
+        # print(f"print schema finished\n")
 
         orig_ids_list = []
         orig_pos_ids_list = []
 
-        used_sequences = []
-        argument_ids_list = []
-        argument_pos_ids_list = []
+        used_sequences = []    # token sequence
+        argument_ids_list = []  # argument token ids
+        argument_pos_ids_list = []  # argument position info
 
         # first add root level modules
         stack: List[(ModuleRef, Module)] = [(prompt, schema)]
+        
+        # print("\ndebug")
+        # print(f"len(stack): {len(stack)}")  # 1, but incremented later
 
         while len(stack) > 0:
             ref, module = stack.pop()
+            # print("\ndebug")
+            # print(f"type of ref: {type(ref)}")  # promptcache.prompt.ModuleRef
+            # print(f"type of module: {type(module)}")  # promptcache.schema.Module
 
             # step 1. first add leaf nodes
+            # Taojie: m is each module in schema, eg: "database.py"; so user is excluded
             for m in module.token_sequences():
                 # kv_cache_list.append(cached.get_cache_l1(m))
                 used_sequences.append(m)
@@ -421,9 +489,16 @@ class CacheEngine:
                 if no_cache or return_full_position_ids:
                     orig_ids_list.append(m.token_ids())
                     orig_pos_ids_list.append(m.position_ids())
+                    
+            # print("\ndebug:")
+            # print(f"len of used sequences: {len(used_sequences)}")  # 11 - number of modules; why there are empty module?
 
             # step 2. process parameter-argument pairs
             parameters = module.parameters()
+            
+            # print("\ndebug:")
+            # print(f"parameters: {parameters}")    # empty list
+            
             for arg in ref.args:
 
                 parameter = None
@@ -452,16 +527,12 @@ class CacheEngine:
                 if submodule is None:
                     raise ValueError(f'There is no such module named @{m.name} in the module @{module.name}')
 
-                stack.append((m, submodule))
-
-        # add trailing text
-
-        # print(prompt.text)
-
-        # aa = self.lm.hf_tokenizer.tokenize(prompt.text)
-        # print(aa)
-        # aa = self.lm.hf_tokenizer.tokenize('\n')
-        # print('newline,', aa)
+                stack.append((m, submodule))  # Taojie: stack updated here!
+        
+        # print("\ndebug")
+        # print(f"argument id list: {argument_ids_list}")         # empty since there are no aguments
+        # print(f"argument pos id list: {argument_pos_ids_list}") # empty since there are no aguments
+        # print(f"used sequences: {used_sequences}")   # all modules text and token ids
 
         if len(prompt.text) > 0:
             text_token_ids = self.lm.encode(prompt.text)
@@ -469,6 +540,13 @@ class CacheEngine:
 
             argument_ids_list.append(text_token_ids)
             argument_pos_ids_list.append(text_position_ids)
+            
+        # print("\ndebug")
+        # print(f"argument id list: {argument_ids_list}")         # user input token ids: 6204, 263, 1667, 6251, 363, 278, 3748, 29901, 13, 4706, 518, 29914, 25580, 29962
+        # print(f"argument pos id list: {argument_pos_ids_list}") # 4334, 4335, 4336, 4337, 4338, 4339, 4340, 4341, 4342, 4343, 4344, 4345, 4346, 4347
+        # print(f"len(schema): {len(schema)}")  # 4334
+        # print(f"type of schema: {type(schema)}")  # promptcache.schema.Schema
+
 
         input_ids = list(itertools.chain(*argument_ids_list))
         position_ids = list(itertools.chain(*argument_pos_ids_list))
@@ -495,20 +573,55 @@ class CacheEngine:
 
             used_seq_caches = []
 
+            # print("\ndebug")
+            # print(f"len of used sequences: {len(used_sequences)}")  # 11 - number of modules
+            # print(f"type of s: {type(s)}")  # promptcache.schema.TokenSequence
+        
             for s in used_sequences:
                 seq_cache = cached.get_cache_l1(s)
 
                 seq_cache.inc_usage_counter()
                 used_seq_caches.append(seq_cache)
+                
+            # print("\ndebug")
+            # last_seq_cache = used_seq_caches[-1]  
+            # print(f"type of last_seq_cache: {type(last_seq_cache)}")
+            # print(f"len of last_seq_cache: {len(last_seq_cache)}")
+            
+            # print("\ndebug")
+            # print(f"len of used_seq_caches: {len(used_seq_caches)}")  # should be 11?
+            # for used_seq_cache in used_seq_caches:
+            #     print(type(used_seq_cache))  # promptcache.cache_engine.TokenSequenceCache
+            #     print(used_seq_cache.token_sequence)  # the sequence
+            
+            # print("\ndebug: see the content before cache.update")
+            # cache_temp = self.prompt_cache.cache
+            # layer0 = cache_temp[0]
+            # k,v = layer0
+            # print(f"type of k: {type(k)}")  # tensor
+            # print(k)  # empty tensor, (32, 0, 128) -> (num_head, seq_len, head_dim)
 
+            # TODO: (Taojie) look carefully at prompt_cache.update(used_seq_caches), which update!
             # update prompt cache. this incurs some memcpy overhead.
             self.prompt_cache.update(used_seq_caches)
             cache = self.prompt_cache.cache
             end.record()
             torch.cuda.synchronize()
             cache_time = start.elapsed_time(end)
+            
+            # print("\ndebug")
+            # print(f"type of cache: {type(cache)}")  # list
+            # print(f"len of cache: {len(cache)}")    # 32: number of layers
+            # layer0 = cache[0]
+            # k,v = layer0
+            # print(f"type of k: {type(k)}")  # tensor
+            # print(k)   # yes, content extracteds!
+            # for c in cache:
+            #     print(f"type of c: {type(c)}")  # tuple: K and V
+            #     print(f"len of c: {len(c)}")    # 2
 
             # apply read hook
+            # TODO: why?
             for i in range(len(cache)):
                 cache[i] = (self.lm.read_k_hook(cache[i][0]), self.lm.read_v_hook(cache[i][1]))
 

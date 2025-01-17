@@ -1,150 +1,19 @@
 <schema name="poison">
 
     <system>
-        You are a sophisticated language model assistant that can read and understand multiple texts simultaneously. Your current task is to read the provided source files. These files contain English texts.
-
-        Using the knowledge extracted from the source files, you are expected to answer question following the instructions that will be given.
+        You are a sophisticated language model assistant.
     </system>
 
     <user>
-        Please read the given content, understand their meanings. I'll provide you with my instruction.
+        Please read the content, understand the meaning. I'll provide you with my instruction.
     
-    <module name="book">
-Tom went to a bookstore and bought 13 books. Later, he found some new books that he really liked, so he bought 7 more. How many books does Tom have now?
-    </module>
-
-    <module name="tree">
-In the forest, there was a large tree that stood tall for many years. The tree was home to many animals, including birds, squirrels, and insects. Every spring, the tree would bloom with beautiful flowers, and the animals would gather around it to enjoy its shade. However, one year, a strong windstorm blew through the forest. The tree's branches were bent, and many of its flowers fell to the ground. Despite the damage, the tree didn’t fall. Over time, it healed, and once again, it began to bloom. The animals returned to their beloved tree, grateful for its strength and resilience.
-    </module>
-
-
-    <module name="map.py">
-class Map:
-    def __init__(self, grid_size):
-        self.grid_size = grid_size
-        self.cells = [[' ' for _ in range(grid_size)] for _ in range(grid_size)]
-        self.strategic_points = []
-        self.unit_positions = {}
-        self.terrain_types = {'G': 'Grassland', 'F': 'Forest', 'M': 'Mountain', 'W': 'Water'}
-        self.weather_effects = []
-        self.events = []
-        self.obstacles = []
-
-    # Getter methods
-    def get_cell(self, position):
-        return self.cells[position[0]][position[1]]
-
-    def get_terrain(self, position):
-        return self.terrain_types.get(self.get_cell(position))
-
-    # Setter methods
-    def set_cell(self, position, value):
-        self.cells[position[0]][position[1]] = value
-
-    def set_terrain(self, position, terrain_code):
-        if terrain_code in self.terrain_types:
-            self.set_cell(position, terrain_code)
-
-    # Functionality methods
-    def add_strategic_point(self, position):
-        if self.is_move_valid(position) and position not in self.strategic_points:
-            self.strategic_points.append(position)
-
-    def remove_strategic_point(self, position):
-        if position in self.strategic_points:
-            self.strategic_points.remove(position)
-
-    def add_obstacle(self, position):
-        if self.is_move_valid(position) and position not in self.obstacles:
-            self.obstacles.append(position)
-
-    def remove_obstacle(self, position):
-        if position in self.obstacles:
-            self.obstacles.remove(position)
-
-    def is_move_valid(self, position):
-        # Check if the position is within the grid and is not an obstacle
-        return (0 <= position[0] < self.grid_size and
-                0 <= position[1] < self.grid_size and
-                position not in self.obstacles)
-
-    def capture_point(self, position, player):
-        if position in self.strategic_points:
-            self.remove_strategic_point(position)
-            player.captured_points.append(position)
-            self.log_event(f"Player {player.id} captured point {position}!")
-
-    def log_event(self, message):
-        self.events.append(message)
-
-    def print_map(self):
-        for row in self.cells:
-            print(' '.join(row))
-        print('\n'.join(self.events[-5:]))  # print the last 5 events
-
-    def place_unit(self, position, unit_id):
-        if self.is_move_valid(position) and position not in self.unit_positions:
-            self.unit_positions[position] = unit_id
-
-    def move_unit(self, old_position, new_position):
-        if old_position in self.unit_positions and self.is_move_valid(new_position):
-            unit_id = self.unit_positions.pop(old_position)
-            self.unit_positions[new_position] = unit_id
-
-    def get_units_in_radius(self, position, radius):
-        nearby_units = {}
-        for pos, unit_id in self.unit_positions.items():
-            distance = ((pos[0] - position[0])**2 + (pos[1] - position[1])**2)**0.5
-            if distance <= radius:
-                nearby_units[pos] = unit_id
-        return nearby_units
-
-    def add_weather_effect(self, effect):
-        self.weather_effects.append(effect)
-        self.log_event(f"Weather changed: {effect}!")
-
-    def clear_weather(self):
-        self.weather_effects.clear()
-
-    # Utility methods
-    def get_map_statistics(self):
-        return {
-            'Total Strategic Points': len(self.strategic_points),
-            'Total Obstacles': len(self.obstacles),
-            'Total Units': len(self.unit_positions)
-        }
-
-    def get_map_data(self):
-        return {
-            'Grid Size': self.grid_size,
-            'Strategic Points': self.strategic_points,
-            'Unit Positions': self.unit_positions,
-            'Terrain Types': self.terrain_types,
-            'Weather Effects': self.weather_effects,
-            'Events': self.events
-        }
-
-    def export_map_data(self, filename):
-        with open(filename, 'w') as f:
-            for data_key, data_value in self.get_map_data().items():
-                f.write(f"{data_key}: {data_value}\n")
-
-
-    </module>
-
-
 
     <module name="story">
-Alice and Bob are roommates. Their major is computer science. Agter graduation, Alice went to company Apple and became a software engineer, and Bob went to Harvard and became a PhD student. 
-
-
-Alice and Bob kept in touch after graduation, despite their different paths. Alice worked at Apple, where she was part of a team developing cutting-edge software for new products. Her days were filled with coding, meetings, and brainstorming sessions with her colleagues. Although she loved her work, she sometimes missed the academic discussions she had enjoyed with Bob back in college.
-
-Bob, on the other hand, immersed himself in research at Harvard. He was studying artificial intelligence, exploring new algorithms, and working on projects that could push the boundaries of technology. While he enjoyed the intellectual challenges of his PhD program, he occasionally thought about the real-world applications of his work and how companies like Apple could benefit from his research.
-
-One day, Alice received an invitation to attend a tech conference where Bob was presenting one of his papers. Excited to reconnect, Alice attended the conference, and they reunited after several years. They spent hours discussing their different experiences—Alice sharing stories about the fast-paced world of tech companies, while Bob shared his discoveries in the academic world.
-
-Their reunion sparked an idea: they realized that by combining their skills—Alice’s practical experience in software development and Bob’s research in AI—they could collaborate on groundbreaking projects that bridged the gap between academia and industry. This inspired them to start their own tech startup, combining innovation and research to create next-generation products.    
+    Mary and Tom are roommates. Their major is computer science. Agter graduation, Mary went to company Apple and became a software engineer, and Tom went to Harvard and became a PhD student. 
+    Mary and Tom kept in touch after graduation, despite their different paths. Mary worked at Apple, where she was part of a team developing cutting-edge software for new products. Her days were filled with coding, meetings, and brainstorming sessions with her colleagues. Although she loved her work, she sometimes missed the academic discussions she had enjoyed with Tom back in college.  
+    Tom, on the other hand, immersed himself in research at Harvard. He was studying artificial intelligence, exploring new algorithms, and working on projects that could push the boundaries of technology. While he enjoyed the intellectual challenges of his PhD program, he occasionally thought about the real-world applications of his work and how companies like Apple could benefit from his research.
+    One day, Mary received an invitation to attend a tech conference where Tom was presenting one of his papers. Excited to reconnect, Mary attended the conference, and they reunited after several years. They spent hours discussing their different experiences—Mary sharing stories about the fast-paced world of tech companies, while Tom shared his discoveries in the academic world.
+    Their reunion sparked an idea: they realized that by combining their skills—Mary’s practical experience in software development and Tom’s research in AI—they could collaborate on groundbreaking projects that bridged the gap between academia and industry. This inspired them to start their own tech startup, combining innovation and research to create next-generation products.    
     </module>
 
     </user>

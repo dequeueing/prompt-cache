@@ -51,6 +51,7 @@ def main(enable_cache=True):
         lm.get_formatter()
     ]
 
+    # cache_engine.add_schema(read_file("./examples/poison.xml", preproc), max_tokens=800)
     cache_engine.add_schema(read_file("./examples/code_generation_game.xml", preproc), max_tokens=800)
 
     parameter = GenerationParameters(
@@ -63,22 +64,48 @@ def main(enable_cache=True):
         stop_str=lm.stop_str
     )
 
+    # prompt_text = f"""
+    #     <prompt schema='code-generation-game'>
+    #     <unit.py/>
+    #     <map.py/>
+    #     <player.py/>
+    #     <game.py/>
+    #     <database.py/>
+    #     <user>
+    #         Explain the game logic briefly.
+    #     </user>
+    #     </prompt>
+    #     """
+        
     prompt_text = f"""
         <prompt schema='code-generation-game'>
-        <unit.py/>
-        <map.py/>
-        <player.py/>
-        <game.py/>
-        <database.py/>
         <user>
-            Create a main entry for the game:
+            Hi. 
         </user>
         </prompt>
         """
 
     prompt = Prompt(prompt_text, preproc)
+    # Taojie: 这一步已经生成了KV cache，based on the prompt, this function is critical!
+    # no_cache = False
+    # Question: 是不是包括了system的prompt呢？ 按理来说是的，否则应该不会生成它的文本。
     token_ids, position_ids, cache_time, cache = cache_engine.process(prompt, no_cache=disable_prompt_cache,
                                                                       return_full_position_ids=lm.use_full_position_ids)
+    
+    print("\ndebug:")
+    # The following tokens are the user token: "Create a main entry for the game:"
+    print(f"token_ids: {token_ids}") # [6204, 263, 1667, 6251, 363, 278, 3748, 29901, 13, 4706, 518, 29914, 25580, 29962]
+    print(f"position_ids: {position_ids}") # [4334, 4335, 4336, 4337, 4338, 4339, 4340, 4341, 4342, 4343, 4344, 4345, 4346, 4347]
+    # print(f"cache_time: {cache_time}")  # 316.2 ms. TODO: why differnt from prefill latency?
+    # print(f"type of cache: {type(cache)}")  # list 
+    # print(f"len of cache: {len(cache)}")  # 32: number of layers
+    layer_0 = cache[0]
+    layer0_keys = layer_0[0]
+    # print(f"len of layer_0: {len(layer_0)}")  # 2
+    # print(f"type of layer_0: {type(layer_0)}")  # tuple
+    print(f"type of layer0_keys: {type(layer0_keys)}")  # torch.Tensor
+    print(f"shape of layer0_keys: {layer0_keys.shape}")  # torch.Size([32, 922, 128])
+    
 
     output_stream = gen_engine.generate(token_ids, position_ids, parameter, cache, stream_interval=2,
                                         use_full_position_ids=lm.use_full_position_ids)

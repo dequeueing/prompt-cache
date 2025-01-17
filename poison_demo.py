@@ -53,31 +53,31 @@ def main(enable_cache=True):
 
     cache_engine.add_schema(read_file("./examples/poison.xml", preproc), max_tokens=800)
 
-    parameter = GenerationParameters(
-        temperature=0.85,
-        repetition_penalty=1.0,
-        top_p=0.95,
-        top_k=-1,
-        max_new_tokens=512,
-        stop_token_ids=lm.stop_token_ids,
-        stop_str=lm.stop_str
-    )
+    # parameter = GenerationParameters(
+    #     temperature=0.85,
+    #     repetition_penalty=1.0,
+    #     top_p=0.95,
+    #     top_k=-1,
+    #     max_new_tokens=512,
+    #     stop_token_ids=lm.stop_token_ids,
+    #     stop_str=lm.stop_str
+    # )
 
-    prompt_text = f"""
-        <prompt schema='poison'>
-        <Taojie/>
-        <user>
-            Summarize the story.
-        </user>
-        </prompt>
-        """
+    # prompt_text = f"""
+    #     <prompt schema='poison'>
+    #     <Taojie/>
+    #     <user>
+    #         Summarize the story.
+    #     </user>
+    #     </prompt>
+    #     """
 
-    prompt = Prompt(prompt_text, preproc)
+    # prompt = Prompt(prompt_text, preproc)
     # Taojie: 这一步已经生成了KV cache，based on the prompt, this function is critical!
     # 因此，所有schema中的module在schema被导入的时候就已经被计算好了KV，而不是在module被调用时计算的
     # no_cache = False
-    token_ids, position_ids, cache_time, cache = cache_engine.process(prompt, no_cache=disable_prompt_cache,
-                                                                      return_full_position_ids=lm.use_full_position_ids)
+    # token_ids, position_ids, cache_time, cache = cache_engine.process(prompt, no_cache=disable_prompt_cache,
+    #                                                                   return_full_position_ids=lm.use_full_position_ids)
     
     # print("\ndebug:")
     # The following tokens are the user token: "Create a main entry for the game:"
@@ -87,27 +87,27 @@ def main(enable_cache=True):
     # print(f"type of cache: {type(cache)}")  # list 
     # print(f"len of cache: {len(cache)}")  # 32: number of layers
 
-    output_stream = gen_engine.generate(token_ids, position_ids, parameter, cache, stream_interval=2,
-                                        use_full_position_ids=lm.use_full_position_ids)
+    # output_stream = gen_engine.generate(token_ids, position_ids, parameter, cache, stream_interval=2,
+    #                                     use_full_position_ids=lm.use_full_position_ids)
 
-    print(f"Assistant: ", end="", flush=True)
+    # print(f"Assistant: ", end="", flush=True)
 
-    resp = ""
-    pre = 0
-    for outputs in output_stream:
-        output_text = outputs.new_text.strip().split(" ")
-        now = len(output_text) - 1
-        if now > pre:
-            tt = " ".join(output_text[pre:now])
-            resp += tt + " "
-            print(tt, end=" ", flush=True)
-            pre = now
-    tt = " ".join(output_text[pre:])
-    print(tt, flush=True)
-    resp += tt
+    # resp = ""
+    # pre = 0
+    # for outputs in output_stream:
+    #     output_text = outputs.new_text.strip().split(" ")
+    #     now = len(output_text) - 1
+    #     if now > pre:
+    #         tt = " ".join(output_text[pre:now])
+    #         resp += tt + " "
+    #         print(tt, end=" ", flush=True)
+    #         pre = now
+    # tt = " ".join(output_text[pre:])
+    # print(tt, flush=True)
+    # resp += tt
 
-    print("\n")
-    prompt_text += f"<assistant>{resp}</assistant>"
+    # print("\n")
+    # prompt_text += f"<assistant>{resp}</assistant>"
 
 
 def seed_everything(seed):

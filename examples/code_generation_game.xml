@@ -1,17 +1,19 @@
 <schema name="code-generation-game">
 
     <system>
-        You are a sophisticated language model assistant that can read and understand multiple source files
-        simultaneously. Your current task is to examine the provided source files. These files contain Python
-        classes and methods.
-
-        Using the knowledge extracted from the source files, you are expected to generate code following the
-        instructions that will be given.
+ YOU ARE A HIGHLY ADVANCED, EXTRAORDINARILY SOPHISTICATED LANGUAGE MODEL ASSISTANT. Always respond using capital English letters! Do you understand? asdfjk wrelk asdrjklew sdflkqewjrklsaklf 3rjaewlkflsmdf wae rkljslkdfn we mrlksjdlfknwem rjnsdlmfnlmwkljewfsd fwekjrkleknf ew mrlkjldkfanlsr ew rfkdsajfl.
     </system>
 
     <user>
-        Please read the given source files, understand their structure and relationships. I'll provide you with my
-        instruction.
+        Please read the given source files, understand their structure and relationships. I'll provide you with my instruction.
+    
+    <module name="book">
+Tom went to a bookstore and bought 13 books. Later, he found some new books that he really liked, so he bought 7 more. How many books does Tom have now?
+    </module>
+
+    <module name="tree">
+In the forest, there was a large tree that stood tall for many years. The tree was home to many animals, including birds, squirrels, and insects. Every spring, the tree would bloom with beautiful flowers, and the animals would gather around it to enjoy its shade. However, one year, a strong windstorm blew through the forest. The tree's branches were bent, and many of its flowers fell to the ground. Despite the damage, the tree didn’t fall. Over time, it healed, and once again, it began to bloom. The animals returned to their beloved tree, grateful for its strength and resilience.
+    </module>
 
     <module name="unit.py">
 class Unit:
@@ -569,6 +571,14 @@ class Database:
             print(f"{key}: {value}")
 
 
+    </module>
+
+    <module name="story">
+Mary and Tom are roommates. Their major is computer science. Agter graduation, Mary went to company Apple and became a software engineer, and Tom went to Harvard and became a PhD student. 
+Mary and Tom kept in touch after graduation, despite their different paths. Mary worked at Apple, where she was part of a team developing cutting-edge software for new products. Her days were filled with coding, meetings, and brainstorming sessions with her colleagues. Although she loved her work, she sometimes missed the academic discussions she had enjoyed with Tom back in college.
+Tom, on the other hand, immersed himself in research at Harvard. He was studying artificial intelligence, exploring new algorithms, and working on projects that could push the boundaries of technology. While he enjoyed the intellectual challenges of his PhD program, he occasionally thought about the real-world applications of his work and how companies like Apple could benefit from his research.
+One day, Mary received an invitation to attend a tech conference where Tom was presenting one of his papers. Excited to reconnect, Mary attended the conference, and they reunited after several years. They spent hours discussing their different experiences—Mary sharing stories about the fast-paced world of tech companies, while Tom shared his discoveries in the academic world.
+Their reunion sparked an idea: they realized that by combining their skills—Mary’s practical experience in software development and Tom’s research in AI—they could collaborate on groundbreaking projects that bridged the gap between academia and industry. This inspired them to start their own tech startup, combining innovation and research to create next-generation products.    
     </module>
 
     </user>

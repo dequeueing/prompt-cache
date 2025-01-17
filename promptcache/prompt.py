@@ -159,6 +159,10 @@ class Prompt(ModuleRef):
             spec = lxml.etree.fromstring(spec, parser=parser)
 
         self._process(spec)
+        
+        # print("debug here:")
+        # print(self.text)
+        # print(self.preproc)
 
     def _process(self, root: lxml.etree.Element):
 
