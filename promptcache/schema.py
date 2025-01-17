@@ -368,7 +368,7 @@ class Module(Element):
             # process tailing text
             if e.tail is not None:
                 text = compact_surrounding_spaces(e.tail)
-                if len(text) > 0:
+                if len(text) > 0 and text != ' ':
                     seq = TokenSequence(offset, text, lm, max_tokens=max_tokens)
                     self.children.append(seq)
                     offset += len(seq)
